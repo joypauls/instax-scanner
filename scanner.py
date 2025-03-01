@@ -26,7 +26,7 @@ while True:
         break
 
     # === Detect outer (polaroid) rectangle in the original frame ===
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # [:, :, 0]
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     edged = cv2.Canny(blurred, 50, 150)
 
@@ -120,39 +120,44 @@ while True:
 
         # If an inner rectangle is found in the warped image, draw it on the warped feed
         if innerContour is not None:
-            cv2.drawContours(warped, [innerContour], -1, (255, 0, 0), 2)
-            for point in innerContour:
-                cv2.circle(warped, tuple(point[0]), 5, (0, 255, 255), -1)
+            pass
+            # cv2.drawContours(warped, [innerContour], -1, (255, 0, 0), 2)
+            # for point in innerContour:
+            #     cv2.circle(warped, tuple(point[0]), 5, (0, 255, 255), -1)
 
-            # --- Extract the innermost rectangle from the clean warped image ---
-            inner_pts = innerContour.reshape(4, 2)
-            inner_rect = order_points(inner_pts)
-            widthA_inner = np.linalg.norm(inner_rect[2] - inner_rect[3])
-            widthB_inner = np.linalg.norm(inner_rect[1] - inner_rect[0])
-            innerWidth = max(int(widthA_inner), int(widthB_inner))
-            heightA_inner = np.linalg.norm(inner_rect[1] - inner_rect[2])
-            heightB_inner = np.linalg.norm(inner_rect[0] - inner_rect[3])
-            innerHeight = max(int(heightA_inner), int(heightB_inner))
+            # # --- Extract the innermost rectangle from the clean warped image ---
+            # inner_pts = innerContour.reshape(4, 2)
+            # inner_rect = order_points(inner_pts)
+            # widthA_inner = np.linalg.norm(inner_rect[2] - inner_rect[3])
+            # widthB_inner = np.linalg.norm(inner_rect[1] - inner_rect[0])
+            # innerWidth = max(int(widthA_inner), int(widthB_inner))
+            # heightA_inner = np.linalg.norm(inner_rect[1] - inner_rect[2])
+            # heightB_inner = np.linalg.norm(inner_rect[0] - inner_rect[3])
+            # innerHeight = max(int(heightA_inner), int(heightB_inner))
 
-            dst_inner = np.array(
-                [
-                    [0, 0],
-                    [innerWidth - 1, 0],
-                    [innerWidth - 1, innerHeight - 1],
-                    [0, innerHeight - 1],
-                ],
-                dtype="float32",
-            )
-            M_inner = cv2.getPerspectiveTransform(inner_rect, dst_inner)
-            innerWarp = cv2.warpPerspective(
-                warped_clean, M_inner, (innerWidth, innerHeight)
-            )
-            # Show the innermost rectangle without any annotations.
-            cv2.imshow("Inner Rectangle", innerWarp)
+            # dst_inner = np.array(
+            #     [
+            #         [0, 0],
+            #         [innerWidth - 1, 0],
+            #         [innerWidth - 1, innerHeight - 1],
+            #         [0, innerHeight - 1],
+            #     ],
+            #     dtype="float32",
+            # )
+            # M_inner = cv2.getPerspectiveTransform(inner_rect, dst_inner)
+            # innerWarp = cv2.warpPerspective(
+            #     warped_clean, M_inner, (innerWidth, innerHeight)
+            # )
+            # # Show the innermost rectangle without any annotations.
+            # cv2.imshow("Inner Rectangle", innerWarp)
 
-        cv2.imshow("Warped Feed", warped)
+        # cv2.imshow("Warped Feed", warped)
+        # cv2.imshow("DEBUG", warped_edged)
 
-    cv2.imshow("Camera Feed", frame)
+    # cv2.imshow("Camera Feed", frame)
+    # cv2.imshow("DEBUG", gray)
+    cv2.imshow("DEBUG", edged)
+    # cv2.imshow("DEBUG", blurred)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
