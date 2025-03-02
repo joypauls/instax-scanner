@@ -46,6 +46,7 @@ while True:
     if outerContour is not None:
         # Draw outer rectangle and its corner points on the original frame
         cv2.drawContours(frame, [outerContour], -1, (0, 255, 0), 2)
+
         for point in outerContour:
             cv2.circle(frame, tuple(point[0]), 5, (0, 0, 255), -1)
 
@@ -121,6 +122,7 @@ while True:
         # If an inner rectangle is found in the warped image, draw it on the warped feed
         if innerContour is not None:
             pass
+
             # cv2.drawContours(warped, [innerContour], -1, (255, 0, 0), 2)
             # for point in innerContour:
             #     cv2.circle(warped, tuple(point[0]), 5, (0, 255, 255), -1)
@@ -154,9 +156,9 @@ while True:
         # cv2.imshow("Warped Feed", warped)
         # cv2.imshow("DEBUG", warped_edged)
 
-    # cv2.imshow("Camera Feed", frame)
+    cv2.imshow("Camera Feed", frame)
     # cv2.imshow("DEBUG", gray)
-    cv2.imshow("DEBUG", edged)
+    # cv2.imshow("DEBUG", edged)
     # cv2.imshow("DEBUG", blurred)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
