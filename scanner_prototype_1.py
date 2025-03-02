@@ -26,33 +26,44 @@ while True:
         break
 
     # === Detect outer (polaroid) rectangle in the original frame ===
+    frame_annotated = frame.copy()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # [:, :, 0]
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    edged = cv2.Canny(blurred, 50, 150)
+    edged = cv2.Canny(blurred, 100, 150)
 
     contours, _ = cv2.findContours(
         edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-    outerContour = None
-    for cnt in contours:
-        peri = cv2.arcLength(cnt, True)
-        approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-        outerContour = approx
-        # if len(approx) == 4:
-        #     outerContour = approx
-        #     break
+    # filter through contours to find the outside of the instax film
+    largest_contour = None
+    # largest_contour_approx = None
+    max_area = 0
+    for contour in contours:
+        # cv2.drawContours(frame, [contour], -1, (0, 255, 0), 3)
+        area = cv2.contourArea(contour)
+        if area > max_area and area > 10000:
+            peri = cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, 0.05 * peri, True)
+            # cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
+            if len(approx) == 4:
+                max_area = area
+                largest_contour = contour
+                # largest_contour_approx = approx
+            # max_area = area
+            # largest_contour = contour
 
-    if outerContour is not None:
-        # Draw outer rectangle and its corner points on the original frame
-        cv2.drawContours(frame, [outerContour], -1, (0, 255, 0), 2)
+    if largest_contour is not None:
+        cv2.drawContours(frame_annotated, [largest_contour], -1, (0, 255, 0), 3)
+        # cv2.drawContours(frame_annotated, [largest_contour_approx], -1, (0, 255, 0), 3)
 
-        # for point in outerContour:
-        #     cv2.circle(frame, tuple(point[0]), 5, (0, 0, 255), -1)
+    else:
+        print("didn't find the outside instax film")
+        # cv2.imwrite("no_contour.jpg", frame_annotated)
 
-    # cv2.imshow("Camera Feed", frame)
-    cv2.imshow("DEBUG", gray)
+    cv2.imshow("Camera Feed", frame_annotated)
+    # cv2.imshow("DEBUG", gray)
     # cv2.imshow("DEBUG", edged)
     # cv2.imshow("DEBUG", blurred)
 
